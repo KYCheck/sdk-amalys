@@ -7,6 +7,8 @@ import { readContract } from '@wagmi/core';
 import { config } from '../wagmi';
 import { abi, contractAddress } from '../constants/contractABI';
 import { keccak256 } from 'viem';
+import ConnectWallet from './connectWallet';
+import { getAccount } from '@wagmi/core';
 
 export default function Form() {
     const [firstName, setFirstName] = useState('');
@@ -32,6 +34,8 @@ export default function Form() {
     }
     
     const handleNextClick = async () => {
+        const account = getAccount(config);
+        console.log("Account: ", account.address);
         const resultHash = hashNameBank(firstName, lastName, bankName);
         console.log("Hash: ", resultHash);
         try {
@@ -39,7 +43,7 @@ export default function Form() {
                 abi: abi,
                 address: contractAddress,
                 functionName: 'checkData',
-                args: ['0x075E38028fB8B256198D1FEB4aD44b2CFFc20B0c', resultHash],
+                args: [account.address, resultHash],
             });
             console.log(result);
         } catch (error) {
@@ -53,7 +57,8 @@ export default function Form() {
                 <Card className=" p-3 bg-opacity-100 bg-gray-800 max-w-lg w-full">
                     <CardHeader className="flex gap-3">
                         <div className="flex flex-col mx-auto justify-center mt-2">
-                            <p className="mx-auto text-white">Enter your personal information</p>
+                            <p className="mx-auto mb-3 text-xl text-white">Enter your personal information</p>
+                            <ConnectWallet />
                         </div>
                     </CardHeader>
                     <CardBody>

@@ -3,55 +3,73 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardBody, CardFooter, Input, Button } from "@nextui-org/react";
 import Link from 'next/link';
+import { readContract } from '@wagmi/core';
+import { config } from '../wagmi';
+import { abi, contractAddress } from '../constants/contractABI';
+import { keccak256 } from 'viem';
 
 export default function Form() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [bankName, setBankName] = useState('');
 
-    const handleNextClick = () => {
-        // const formDataUser = {
-        //     firstName,
-        //     lastName,
-        //     bankName,
-        // };
-
-        // // Retrieve existing data from localStorage
-        // const existingData = localStorage.getItem('formDataUser');
-        // const DataUser = existingData ? JSON.parse(existingData) : [];
-
-        // // Add the new forms data to the array
-        // DataUser.push(formDataUser);
-
-        // // Save the updated array back to localStorage
-        // localStorage.setItem('DataUser', JSON.stringify(DataUser));
-        // console.log('New formDataUser added', DataUser);
+    function toUint8Array(str: string) {
+        return new TextEncoder().encode(str);
+    }
+    
+    // Fonction pour hasher prénom, nom, et nom de banque
+    function hashNameBank(firstName: string, lastName: string, bankName: string) {
+        // Concaténer les chaînes avec un délimiteur pour assurer l'unicité
+        const combinedString = `${firstName}|${lastName}|${bankName}`;
+        
+        // Convertir la chaîne combinée en Uint8Array
+        const combinedUint8Array = toUint8Array(combinedString);
+        
+        // Hasher avec keccak256
+        const hash = keccak256(combinedUint8Array);
+        
+        return hash;
+    }
+    
+    const handleNextClick = async () => {
+        const resultHash = hashNameBank(firstName, lastName, bankName);
+        console.log("Hash: ", resultHash);
+        try {
+            const result = await readContract(config, {
+                abi: abi,
+                address: contractAddress,
+                functionName: 'checkData',
+                args: ['0x075E38028fB8B256198D1FEB4aD44b2CFFc20B0c', resultHash],
+            });
+            console.log(result);
+        } catch (error) {
+            console.error("An error occurred:", error);
+        }
     };
-
 
     return (
         <div className="flex items-center justify-center">
             <div className="flex flex-col gap-4 w-1/3">
-                <Card className=" p-3 bg-opacity-60 max-w-lg w-full">
+                <Card className=" p-3 bg-opacity-100 bg-gray-800 max-w-lg w-full">
                     <CardHeader className="flex gap-3">
                         <div className="flex flex-col mx-auto justify-center mt-2">
-                            <p className="mx-auto">Enter your personal information</p>
+                            <p className="mx-auto text-white">Enter your personal information</p>
                         </div>
                     </CardHeader>
                     <CardBody>
-                        <Input type="text" variant="bordered" label="First name" className="my-3"
+                        <Input type="text" variant="bordered" label="First name" className="my-3 text-white"
                             onChange={(e) => setFirstName(e.target.value)} />
 
-                        <Input type="text" variant="bordered" label="Last name" className="my-3"
+                        <Input type="text" variant="bordered" label="Last name" className="my-3 text-white"
                             onChange={(e) => setLastName(e.target.value)} />
 
-                        <Input type="text" variant="bordered" label="Bank name" className="my-3"
+                        <Input type="text" variant="bordered" label="Bank name" className="my-3 text-white"
                             onChange={(e) => setBankName(e.target.value)} />
                     </CardBody>
                     <CardFooter className="mb-2 flex justify-center items-center">
                         <div className="flex gap-4">
-                            <Button className="bg-tiffany_blue" onClick={handleNextClick}>Save</Button>
-                            <Link href="/" className="text-sm text-black flex items-center">
+                            <Button className="bg-tiffany_blue" onPress={handleNextClick}>Save</Button>
+                            <Link href="/" className="text-sm text-white flex items-center">
                                 Go back home
                             </Link>
                         </div>

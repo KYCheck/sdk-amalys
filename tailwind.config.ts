@@ -29,7 +29,8 @@ const config: Config = {
         
         'old_rose': { DEFAULT: '#d4897f', 100: '#321511', 200: '#652a22', 300: '#973e32', 400: '#c3594a', 500: '#d4897f', 600: '#dc9f97', 700: '#e5b7b1', 800: '#eecfcb', 900: '#f6e7e5' }, 
         'thulian_pink': { DEFAULT: '#c9759c', 100: '#2e121f', 200: '#5b233d', 300: '#89355c', 400: '#b6477b', 500: '#c9759c', 600: '#d48faf', 700: '#deabc3', 800: '#e9c7d7', 900: '#f4e3eb' },
-        'light_blue':  { DEFAULT: '#cbd5e1'}
+        'light_blue':  { DEFAULT: '#cbd5e1'},
+        'dark_DYDX': { DEFAULT: '#191927'},
       },
     },
   },
